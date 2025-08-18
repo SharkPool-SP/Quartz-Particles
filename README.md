@@ -39,12 +39,16 @@ document.body.appendChild(myEngine.engine.canvas);
 2. Create an emitter with a texture and position:
 
 ```js
-myEngine.createEmitter("spark", [320, 240], "spark.png");
+myEngine.createEmitter("spark", [0, 0], "/square.png", optionsObj);
 ```
 **Note:**
-> Position (0,0) is the center
-> 
-> You can also pass an object containing a WebGLTexture, width value, and height value instead of a url 
+
+- Position (0,0) is the center
+
+- You can also pass an object containing a WebGLTexture, width value, and height value instead of a url
+
+- 'optionsObj' is a **optional** object that sets the behaviour of the particles. See [Quartz Particle Properties](https://github.com/SharkPool-SP/Quartz-Particles/blob/main/src/docs/particle-properties.md) for a description of each property to include in the object.
+
 
 3. Update the engine in your animation loop:
 
