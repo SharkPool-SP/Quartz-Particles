@@ -104,6 +104,10 @@ const image2Texture = (url, gl, callback) => {
   });
 };
 
+const shiftRGB = (rgbSetting) => {
+  return rgbSetting.val.map((c) => clamp(0, 255, rng(c, rgbSetting.inf)));
+};
+
 const createTint = (sRGB, eRGB, time) => {
   return eRGB.map((c, i) => (c * time + sRGB[i] * (1 - time)) / 255);
 };
@@ -239,8 +243,8 @@ class QuartzParticles {
             cosS: rng(opts.cosS.val, opts.cosS.inf),
             fIn: rng(opts.fIn.val, opts.fIn.inf),
             fOut: rng(opts.fOut.val, opts.fOut.inf),
-            sCol: opts.sCol,
-            eCol: opts.eCol,
+            sCol: shiftRGB(opts.sCol),
+            eCol: shiftRGB(opts.eCol),
             ogPos: [],
           };
           obj.ogPos = [obj.x, obj.y];
