@@ -203,7 +203,7 @@ class QuartzParticles {
     emitters.forEach((emitter) => {
       if (!emitter.textureData) return;
 
-      const { pos, opts, tintCache, textureData } = emitter;
+      const { pos, opts, data, tintCache, textureData } = emitter;
       const { tWidth, tHeight } = textureData;
       emitter.frameCnt++;
 
@@ -211,7 +211,6 @@ class QuartzParticles {
       const rPos = [pos[0] - tWidth * 0.25, pos[1] + tHeight * 0.25];
 
       // [CPU] emit new particles
-      const data = emitter.data;
       if (emitter.frameCnt > 1 && data.size < maxP) {
         const emission = Math.round(rng(opts.emission.val, opts.emission.inf));
         const count = maxP > emission ? emission : maxP;
@@ -276,7 +275,7 @@ class QuartzParticles {
         /* do not draw if dead */
         if (particle.life - lifeRate <= 0) {
           data.delete(particle);
-          return;
+          continue;
         }
 
         const dx = x - (pos[0] + width * 0.5);
@@ -323,7 +322,7 @@ class QuartzParticles {
           screenX - sizeX > width ||
           screenY + sizeY < 0 ||
           screenY - sizeY > height
-        ) return;
+        ) continue;
 
         const posNDC = [particle.x + width * 0.5, particle.y + height * 0.5, 0];
 
