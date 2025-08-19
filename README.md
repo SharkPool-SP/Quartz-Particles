@@ -8,7 +8,7 @@
 **Quartz Particles** is a lightweight and well-performing Particle Engine built with JavaScript and WebGL (and TWGL).
 It allows you to create and manage multiple Particle Engines and Emitters with a plentiful amount of customizable properties like speed, direction, color, size, gravity, and more.
 
-For my Windows PC (@SharkPool-SP), this engine can render over **2000** particles in a single engine with decent fps. Over **700** on the M1 Macbook Air as well!
+For my Windows PC (@SharkPool-SP), this engine can render over **30,000** particles in a single engine with decent fps. Over **20,000** on the M1 Macbook Air as well!
 
 ---
 
