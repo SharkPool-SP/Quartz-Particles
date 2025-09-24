@@ -147,7 +147,7 @@ class QuartzParticles {
     this.engine = {
       canvas, gl,
       programInfo, bufferInfo, projection,
-      interpolate: false, noTrails: true,
+      noTrails: true,
     };
     this.emitters = new Map();
   }
@@ -185,7 +185,7 @@ class QuartzParticles {
       canvas, gl,
       programInfo, bufferInfo, projection,
       data,
-      interpolate, noTrails,
+      noTrails,
     } = this.engine;
     const emitters = this.emitters;
     const { width, height } = canvas;
