@@ -180,7 +180,7 @@ class QuartzParticles {
     updates a single frame of the particle engine
     @param {number} delta, numerical value used for delta frames
   */
-  updateEngine (deltaTime = 1) {
+  updateEngine (delta = 1) {
     const {
       canvas, gl,
       programInfo, bufferInfo, projection,
@@ -189,7 +189,6 @@ class QuartzParticles {
     } = this.engine;
     const emitters = this.emitters;
     const { width, height } = canvas;
-    const delta = interpolate ? 1 + deltaTime : 1;
     const lifeRate = 0.01 * delta;
 
     /* clear canvas */
@@ -293,8 +292,8 @@ class QuartzParticles {
         ogPos[1] -= gravY * ind * delta;
 
         const waveT = conLife - life;
-        particle.x = ogPos[0] + fastSin(waveT * sinS) * sinW * delta;
-        particle.y = ogPos[1] + fastCos(waveT * cosS) * cosW * delta;
+        particle.x = ogPos[0] + fastSin(waveT * sinS) * sinW;
+        particle.y = ogPos[1] + fastCos(waveT * cosS) * cosW;
 
         const fadeIn = ind * (1 / fIn);
         const fadeOut = (conLife - ind) * (1 / fOut);
@@ -309,7 +308,7 @@ class QuartzParticles {
           tintCache.set(tintKey, tint);
         }
 
-        particle.ind++;
+        particle.ind += delta;
         particle.life -= lifeRate;
 
         const screenX = particle.x + width * 0.5;
