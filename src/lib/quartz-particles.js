@@ -119,15 +119,29 @@ class QuartzParticles {
     this.emitters = null;
   }
 
-  /*
-    initializes the particle engine
-    @param {object} scale, object containing numeric width & height properties for display
+  /**
+   * initializes the particle engine
+   *
+   * @param {object} scale, object containing numeric width & height properties for display
   */
   initialize (scale = defaultScale) {
     const canvas = document.createElement("canvas");
+    this.initializeFromCanvas(canvas, scale);
+  }
+
+  /**
+   * initializes the particle engine using a canvas already on the DOM
+   * 
+   * @param {<canvas>} canvas, the canvas element
+   * @param {object} optScale, (optional) object containing numeric width & height
+   * properties for display. Uses the inputted canvas size by default
+   */
+  initializeFromCanvas (canvas, optScale) {
     const gl = canvas.getContext("webgl2") ?? canvas.getContext("webgl");
-    canvas.width = scale.width;
-    canvas.height = scale.height;
+    if (optScale && optScale.width && optScale.height) {
+      canvas.width = scale.width;
+      canvas.height = scale.height;
+    }
 
     const projection = twgl.m4.ortho(0, canvas.width, canvas.height, 0, -1, 1);
     const programInfo = twgl.createProgramInfo(gl, [
@@ -152,9 +166,9 @@ class QuartzParticles {
     this.emitters = new Map();
   }
 
-  /*
-    deletes the particle engine
-  */
+  /**
+   * deletes the particle engine
+   */
   disposeEngine () {
     this.emitters.forEach(e => {
       if (e.textureData?.texture) {
@@ -166,9 +180,9 @@ class QuartzParticles {
     this.emitters.clear();
   }
 
-  /*
-    restarts the flow of the engine. Resets all emitters to their default state
-  */
+  /**
+   * restarts the flow of the engine. Resets all emitters to their default state
+   */
   resetEngineFlow () {
     this.emitters.forEach((emitter) => {
       emitter.frameCnt = 0;
@@ -176,10 +190,10 @@ class QuartzParticles {
     });
   }
 
-  /*
-    updates a single frame of the particle engine
-    @param {number} delta, numerical value used for delta frames
-  */
+  /**
+   * updates a single frame of the particle engine
+   * @param {number} delta, numerical value used for delta frames
+   */
   updateEngine (delta = 1) {
     const {
       canvas, gl,
@@ -346,13 +360,13 @@ class QuartzParticles {
     });
   }
 
-  /*
-    create an emitter by name for the engine
-    @param {string} name, name used to identify the emitter
-    @param {array} position, array with x and y coordinates. (0,0) is the center
-    @param {WebGLTexture|String} texturePath, image URL or WebGLTexture used by each particle
-    @param {object} options, (optional) settings for the engine. Same structure as 'defaultSettings'
-  */
+  /**
+   * create an emitter by name for the engine
+   * @param {string} name, name used to identify the emitter
+   * @param {array} position, array with x and y coordinates. (0,0) is the center
+   * @param {WebGLTexture|String} texturePath, image URL or WebGLTexture used by each particle
+   * @param {object} options, (optional) settings for the engine. Same structure as 'defaultSettings'
+   */
   createEmitter(name, position = [0, 0], texturePath, options) {
     const ctx = {
       pos: position,
@@ -384,10 +398,10 @@ class QuartzParticles {
     this.emitters.set(name, ctx);
   }
 
-  /*
-    remove an emitter by name from the engine
-    @param {string} name, name used to identify the emitter
-  */
+  /**
+   * remove an emitter by name from the engine
+   * @param {string} name, name used to identify the emitter
+   */
   disposeEmitter(name) {
     const emitter = this.emitters.get(name);
     if (emitter) {
