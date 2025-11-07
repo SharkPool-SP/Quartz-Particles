@@ -139,8 +139,8 @@ class QuartzParticles {
   initializeFromCanvas (canvas, optScale) {
     const gl = canvas.getContext("webgl2") ?? canvas.getContext("webgl");
     if (optScale && optScale.width && optScale.height) {
-      canvas.width = scale.width;
-      canvas.height = scale.height;
+      canvas.width = optScale.width;
+      canvas.height = optScale.height;
     }
 
     const projection = twgl.m4.ortho(0, canvas.width, canvas.height, 0, -1, 1);
