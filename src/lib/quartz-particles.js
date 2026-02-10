@@ -1,17 +1,17 @@
 import * as twgl from "https://cdn.jsdelivr.net/npm/twgl.js@4/dist/4.x/twgl-full.module.min.js";
 
 /* Engine Constants */
-const radianConvert = Math.PI / 180;
 const vertices = [
   -0.5, -0.5, 0.5, -0.5, -0.5, 0.5, 0.5, -0.5, 0.5, 0.5, -0.5, 0.5,
 ];
 const texcoords = [0, 0, 1, 0, 0, 1, 1, 0, 1, 1, 0, 1];
 
+const TO_RADIAN = Math.PI / 180;
 const TWO_PI = Math.PI * 2;
 const INV_TWO_PI = 8192 / TWO_PI;
 
-const sinTable = new Float32Array(8192),
-  cosTable = new Float32Array(8192);
+const sinTable = new Float32Array(8192);
+const cosTable = new Float32Array(8192);
 for (let i = 0; i < 8192; i++) {
   const angle = (i / 8192) * TWO_PI;
   sinTable[i] = Math.sin(angle);
@@ -77,15 +77,9 @@ const defaultSettings = {
   eCol: { val: [0, 0, 255] /* #0000ff */, inf: 0 },
 };
 
-const defaultScale = {
-  width: 480, // px
-  height: 360 // px
-};
-
 /* Engine Utility */
 const fastSin = (rads) => sinTable[Math.floor(rads * INV_TWO_PI) & 8191];
 const fastCos = (rads) => cosTable[Math.floor(rads * INV_TWO_PI) & 8191];
-
 const rng = (val, inf) => val + (Math.random() * 2 - 1) * inf;
 
 const clamp = (min, max, value) => {
@@ -114,23 +108,28 @@ const createTint = (sRGB, eRGB, time) => {
 
 /* Quartz Engine Class */
 class QuartzParticles {
+  static DEFAULT_SCALE = {
+    width: 480, // px
+    height: 360 // px
+  }
+
   constructor() {
     this.engine = null;
     this.emitters = null;
   }
 
   /**
-   * initializes the particle engine
+   * Initializes the particle engine.
    *
    * @param {object} scale, object containing numeric width & height properties for display
   */
-  initialize (scale = defaultScale) {
+  initialize (scale = QuartzParticles.DEFAULT_SCALE) {
     const canvas = document.createElement("canvas");
     this.initializeFromCanvas(canvas, scale);
   }
 
   /**
-   * initializes the particle engine using a canvas already on the DOM
+   * Initializes the particle engine using a canvas already on the DOM.
    * 
    * @param {<canvas>} canvas, the canvas element
    * @param {object} optScale, (optional) object containing numeric width & height
@@ -167,7 +166,7 @@ class QuartzParticles {
   }
 
   /**
-   * deletes the particle engine
+   * Deletes the particle engine.
    */
   disposeEngine () {
     this.emitters.forEach(e => {
@@ -175,13 +174,23 @@ class QuartzParticles {
         this.engine.gl.deleteTexture(e.textureData.texture);
       }
     });
+    this.engine.gl.deleteProgram(this.engine.programInfo.program);
+    const glExtension = this.engine.gl.getExtension("WEBGL_lose_context");
+    if (glExtension) {
+      try {
+        glExtension.loseContext();
+      } catch(e) {
+        console.warn("QuartzParticles could not close this context: " + e);
+      }
+    }
+
     this.engine.canvas.remove();
     this.engine = null;
     this.emitters.clear();
   }
 
   /**
-   * restarts the flow of the engine. Resets all emitters to their default state
+   * Restarts the flow of the engine. Resets all emitters to their default state.
    */
   resetEngineFlow () {
     this.emitters.forEach((emitter) => {
@@ -191,7 +200,8 @@ class QuartzParticles {
   }
 
   /**
-   * updates a single frame of the particle engine
+   * Updates a single frame of the particle engine.
+   *
    * @param {number} delta, numerical value used for delta frames
    */
   updateEngine (delta = 1) {
@@ -205,7 +215,7 @@ class QuartzParticles {
     const { width, height } = canvas;
     const lifeRate = 0.01 * delta;
 
-    /* clear canvas */
+    // clear canvas
     twgl.bindFramebufferInfo(gl, null);
     gl.viewport(0, 0, width, height);
     if (noTrails) {
@@ -296,7 +306,7 @@ class QuartzParticles {
         const mag = Math.hypot(dx, dy) || 1;
         const normX = dx / mag;
         const normY = dy / mag;
-        const dirRad = dir * radianConvert;
+        const dirRad = dir * TO_RADIAN;
 
         ogPos[0] += (fastCos(dirRad) * speed + normX *
           accelRad * ind + -normY * accelTan * ind) * delta;
@@ -340,7 +350,7 @@ class QuartzParticles {
         const posNDC = [particle.x + width * 0.5, particle.y + height * 0.5, 0];
 
         let matrix = twgl.m4.translate(projection, posNDC);
-        matrix = twgl.m4.rotateZ(matrix, spin * radianConvert);
+        matrix = twgl.m4.rotateZ(matrix, spin * TO_RADIAN);
         matrix = twgl.m4.scale(matrix, [sizeX, sizeY, 1]);
 
         twgl.setUniforms(programInfo, {
@@ -361,7 +371,8 @@ class QuartzParticles {
   }
 
   /**
-   * create an emitter by name for the engine
+   * Create an emitter by name for the engine.
+   *
    * @param {string} name, name used to identify the emitter
    * @param {array} position, array with x and y coordinates. (0,0) is the center
    * @param {WebGLTexture|String} texturePath, image URL or WebGLTexture used by each particle
@@ -399,7 +410,8 @@ class QuartzParticles {
   }
 
   /**
-   * remove an emitter by name from the engine
+   * Remove an emitter by name from the engine.
+   *
    * @param {string} name, name used to identify the emitter
    */
   disposeEmitter(name) {
