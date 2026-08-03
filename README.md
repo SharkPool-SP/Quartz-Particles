@@ -8,7 +8,7 @@
 **Quartz Particles** is a lightweight and well-performing Particle Engine built with JavaScript and WebGL (and TWGL).
 It allows you to create and manage multiple Particle Engines and Emitters with a plentiful amount of customizable properties like speed, direction, color, size, gravity, and more.
 
-For my Windows PC (@SharkPool-SP), this engine can render over **30,000** particles in a single engine with decent fps. Over **20,000** on the M1 Macbook Air as well!
+For my PC (@SharkPool-SP), this engine can render over **30,000** particles in a single engine with decent fps. Over **20,000** on the M1 Macbook Air as well!
 
 ---
 
@@ -18,8 +18,8 @@ You can add **Quartz Particles** to your project using an *ES module import*. Fo
 
 ```html
 <script type="module">
-  import QuartzParticles from "./quartz-particles.min.js";
-  // or import from "./quartz-particles.js"
+  import QuartzParticles from "./quartz-particles<.min.js OR .js>";
+  // CDN Host: https://cdn.jsdelivr.net/gh/SharkPool-SP/Quartz-Particles/src/lib/quartz-particles<.min.js OR .js>
 
   /* Now you can create and initialize your Particle Engine! */
   const myEngine = new QuartzParticles();
@@ -29,11 +29,17 @@ You can add **Quartz Particles** to your project using an *ES module import*. Fo
 
 #### How to Use
 
-1. Initialize the engine with a canvas size:
+1.a Initialize the engine with a canvas size:
 
 ```js
 engine.initialize({ width: 640, height: 480 });
 document.body.appendChild(myEngine.engine.canvas);
+```
+
+1.b Alternatively, initialize the engine with an existing canvas:
+
+```js
+engine.initializeFromCanvas(htmlCanvas);
 ```
 
 2. Create an emitter with a texture and position:
