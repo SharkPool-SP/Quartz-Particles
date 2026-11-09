@@ -195,7 +195,6 @@ class QuartzParticles {
   resetEngineFlow () {
     this.emitters.forEach((emitter) => {
       emitter.frameCnt = 0;
-      emitter.tintCache = new Map();
     });
   }
 
@@ -226,7 +225,7 @@ class QuartzParticles {
     emitters.forEach((emitter) => {
       if (!emitter.textureData) return;
 
-      const { pos, opts, data, tintCache, textureData } = emitter;
+      const { pos, opts, data, textureData } = emitter;
       const { tWidth, tHeight } = textureData;
       emitter.frameCnt++;
 
@@ -270,6 +269,11 @@ class QuartzParticles {
             ogPos: [],
           };
           obj.ogPos = [obj.x, obj.y];
+          obj.dir0 = obj.dir;
+          obj.spin0 = obj.spin;
+          obj.size0 = obj.size;
+          obj.streX0 = obj.streX;
+          obj.streY0 = obj.streY;
           data.add(obj);
         }
       }
@@ -279,20 +283,36 @@ class QuartzParticles {
       gl.bindTexture(gl.TEXTURE_2D, textureData.texture);
 
       for (const particle of data) {
-        let {
-          ind, conLife, life,
-          x, y, ogPos,
-          dir, eDir,
-          size, eSize,
-          spin, eSpin,
-          speed, gravX, gravY,
-          streX, eStreX,
-          streY, eStreY,
-          accelRad, accelTan,
-          sinW, sinS,
-          cosW, cosS,
-          fIn, fOut,
-          sCol, eCol,
+        const {
+          ind,
+          conLife,
+          life,
+          x,
+          y,
+          ogPos,
+          dir0,
+          eDir,
+          size0,
+          eSize,
+          spin0,
+          eSpin,
+          speed,
+          gravX,
+          gravY,
+          streX0,
+          eStreX,
+          streY0,
+          eStreY,
+          accelRad,
+          accelTan,
+          sinW,
+          sinS,
+          cosW,
+          cosS,
+          fIn,
+          fOut,
+          sCol,
+          eCol,
         } = particle;
 
         /* do not draw if dead */
@@ -300,6 +320,16 @@ class QuartzParticles {
           data.delete(particle);
           continue;
         }
+
+        const t = Math.max(
+          0,
+          Math.min(ind / Math.max(conLife, Number.EPSILON), 1)
+        );
+        const dir = dir0 + (eDir - dir0) * t;
+        const spin = spin0 + (eSpin - spin0) * t;
+        const size = size0 + (eSize - size0) * t;
+        const streX = streX0 + (eStreX - streX0) * t;
+        const streY = streY0 + (eStreY - streY0) * t;
 
         const dx = x - (pos[0] + width * 0.5);
         const dy = y - (pos[1] + height * 0.5);
@@ -322,15 +352,7 @@ class QuartzParticles {
         const fadeIn = ind * (1 / fIn);
         const fadeOut = (conLife - ind) * (1 / fOut);
         const opacity = clamp(0, 1, Math.min(fadeIn, fadeOut));
-
-        const tintKey = life.toFixed(4);
-        let tint = tintCache.get(tintKey);
-        if (!tint) {
-          tint = createTint(
-            sCol, eCol, clamp(0, 1, ind / conLife)
-          );
-          tintCache.set(tintKey, tint);
-        }
+        const tint = createTint(sCol, eCol, t);
 
         particle.ind += delta;
         particle.life -= lifeRate;
@@ -359,13 +381,6 @@ class QuartzParticles {
           u_tintColor: [...tint, opacity],
         });
         twgl.drawBufferInfo(gl, bufferInfo);
-
-        const deltaFactor = delta / conLife;
-        particle.dir += (eDir - dir) * deltaFactor;
-        particle.spin += (eSpin - spin) * deltaFactor;
-        particle.size += (eSize - size) * deltaFactor;
-        particle.streX += (eStreX - streX) * deltaFactor;
-        particle.streY += (eStreY - streY) * deltaFactor;
       }
     });
   }
@@ -384,7 +399,7 @@ class QuartzParticles {
       opts: options ?? structuredClone(defaultSettings),
       textureData: null,
       frameCnt: 0,
-      data: new Set(), tintCache: new Map(),
+      data: new Set(),
     };
 
     if (typeof texturePath === "object" && !Array.isArray(texturePath)) {
